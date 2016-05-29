@@ -1,0 +1,40 @@
+<div class="container-fluid" ng-controller="SearchController">
+  <div class="row">
+    <div class="col-sm-12">
+      <form name="searchForm"class="thing-form">
+        <h1>Search for your buddies today</h1>
+        <p class="input-group">
+          <input type="text"  ng-model="ser.newThing" class="form-control" placeholder="Enter your buddy's name">
+      <span class="input-group-btn">
+        <button type="submit" class="btn btn-primary" ng-click="ser.searchUsers()"><i class="fa fa-search"></i></button>
+      </span>
+        </p>
+      </form>
+    </div>
+
+    </div>
+    <div class="row">
+      <section class="col-xs-12 col-sm-12 col-md-12">
+        <article ng-repeat="user in ser.users" class="search-result row">
+          <!--<div class="col-xs-12 col-sm-12 col-md-3">-->
+            <!--<a href="#" title="Lorem ipsum" class="thumbnail"><img src="http://lorempixel.com/250/140/people" alt="Lorem ipsum" /></a>-->
+          <!--</div>-->
+          <div class="col-xs-12 col-sm-12 col-md-7 excerpet">
+            <h3>Name:{{user.name}}</h3>
+            <p>email : {{user.email}}</p>
+            <ul>
+              <li ng-repeat="connects in connctions">
+                {{connects}}
+              </li>
+            </ul>
+          </div>
+          <span class="clearfix borda"></span>
+          <div class="col-xs-12 col-sm-12 col-md-12">
+          <button type="submit" class="btn btn-primary" ><i class="fa fa-link"></i></button>
+          </div>
+        </article>
+
+      </section>
+    </div>
+
+  </div>
