@@ -7,11 +7,12 @@ import * as auth from '../../auth/auth.service';
 var router = new Router();
 
 router.get('/', auth.isAuthenticated(), controller.index);
+router.get('/list', auth.isAuthenticated(), controller.showList);
 router.delete('/:id', auth.hasRole('admin'), controller.destroy);
 router.get('/me', auth.isAuthenticated(), controller.me);
 router.get('/connect/:id', auth.isAuthenticated(), controller.connect);
 router.put('/:id/password', auth.isAuthenticated(), controller.changePassword);
-router.get('/:id', auth.isAuthenticated(), controller.show);
+router.get('/:id',  auth.hasRole('admin'), controller.show);
 router.post('/', controller.create);
 
 module.exports = router;

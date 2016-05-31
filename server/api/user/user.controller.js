@@ -1,6 +1,8 @@
 'use strict';
 
 import User from './user.model';
+// required for Object creation
+import mongoose from 'mongoose';
 import passport from 'passport';
 import config from '../../config/environment';
 import jwt from 'jsonwebtoken';
@@ -93,6 +95,38 @@ export function show(req, res, next) {
 }
 
 /**
+ * Get a multiple users
+ */
+export function showList(req, res, next) {
+  var userIdsString = req.query.ids;
+  if(_.isEmpty(userIdsString)){
+    return res.status(404).end();
+  }
+  var userIds = userIdsString.split(',');
+
+  var mongooseObjectList  =[];
+  _.forEach(userIds, function(id){
+    let tempObj =  mongoose.Types.ObjectId(id);
+    console.log('ObjectId',tempObj);
+    mongooseObjectList.push(tempObj);
+  })
+  console.log('mongooseObjectList',mongooseObjectList);
+  return User.find({'_id': { $in:mongooseObjectList}}).exec()
+      .then(users => {
+      if (!users) {
+    return res.status(404).end();
+  }
+  // don't show users for simplicity
+  var newUsers =[];
+  _.forEach(users, function (val) {
+      newUsers.push(_.omit(val.toObject(), ['connections']));
+  })
+  res.json(newUsers);
+})
+.catch(err => next(err));
+}
+
+/**
  * Deletes a user
  * restriction: 'admin'
  */
@@ -148,22 +182,38 @@ export function me(req, res, next) {
  * Connect To A user
  */
 export function connect(req, res, next) {
-  console.log("req",req.params);
+  console.log("req", req.params);
   var connectId = req.params.id;
   var userId = req.user._id;
 
-  return User.findOne({ _id: userId }, '-salt -password').exec()
+  return User.findOne({_id: userId}, '-salt -password').exec()
       .then(user => { // don't ever give out the password or salt
-      if (!user) {
-    return res.status(401).end();
-  } else {
-    return user.update({$addToSet:{ connections:connectId}})
-        .then(() => {
-        res.status(204).end();
-     })
-  }
+      if (!user)
+      {
+        return res.status(401).end();
+      } else {
+        return User.findOne({_id: connectId}).exec()
+        .then(user2 => { // don't ever give out the password or salt
+        if (!user2) {
+          return res.status(401).end();
+        } else {
+          return user2.update({$addToSet: {connections: userId}})
+              .then(function(){
+                console.log('user only',user)
+                return user.update({$addToSet: {connections: connectId}})
+              }).then(
+              function(){
+                res.status(204).end();
+              }
+            )
+          }
+
+        });
+      }
 })
-.catch(err => next(err));
+.catch(err => next(err)
+)
+  ;
 }
 
 /**
