@@ -4,7 +4,7 @@ import app from '../..';
 import User from './user.model';
 import * as controller from './user.controller';
 var user;
-var user2;
+
 var genUser = function() {
   user = new User({
     provider: 'local',
@@ -15,25 +15,6 @@ var genUser = function() {
   return user;
 };
 
-var genUser2 = function(){
-
-
-    user = new User({
-      provider: 'local',
-      name: 'Fake User1',
-      email: 'test1@example.com',
-      password: 'password'
-    });
-
-    user2 = new User({
-      provider: 'local',
-      name: 'Fake User2',
-      email: 'test2@example.com',
-      password: 'password'
-    });
-
-
-}
 
 describe('User Model', function() {
   before(function() {
@@ -120,29 +101,3 @@ describe('User Model', function() {
 
 });
 
-describe('User Model', function() {
-  before(function () {
-    // Clear users before testing
-    return User.remove();
-  });
-
-  beforeEach(function () {
-    genUser2();
-  });
-
-  afterEach(function () {
-    return User.remove();
-  });
-
-  it.skip('should check if a user can connect to another', function () {
-
-  console.log('controller',controller);
-  console.log('user',user);
-    controller.connect({params:{id:user2._id},user:user},{},function(){}).
-      then(function(res){
-      console.log('result of connection',res)
-    });
-
-
-  });
-});

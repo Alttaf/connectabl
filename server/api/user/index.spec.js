@@ -1,107 +1,155 @@
 'use strict';
 
-var proxyquire = require('proxyquire').noPreserveCache();
 
-var userCtrlStub = {
-  index: 'userCtrl.index',
-  destroy: 'userCtrl.destroy',
-  me: 'userCtrl.me',
-  changePassword: 'userCtrl.changePassword',
-  show: 'userCtrl.show',
-  create: 'userCtrl.create'
-};
+import app from '../..';
+import User from './user.model';
+import request from 'supertest';
+import _ from 'lodash';
 
-var authServiceStub = {
-  isAuthenticated() {
-    return 'authService.isAuthenticated';
-  },
-  hasRole(role) {
-    return 'authService.hasRole.' + role;
-  }
-};
-
-var routerStub = {
-  get: sinon.spy(),
-  put: sinon.spy(),
-  post: sinon.spy(),
-  delete: sinon.spy()
-};
-
-// require the index with our stubbed out modules
-var userIndex = proxyquire('./index', {
-  'express': {
-    Router() {
-      return routerStub;
-    }
-  },
-  './user.controller': userCtrlStub,
-  '../../auth/auth.service': authServiceStub
-});
-
-describe('User API Router:', function() {
-
-  it('should return an express router instance', function() {
-    userIndex.should.equal(routerStub);
+describe('User API:', function () {
+  var user;
+  var user2;
+  // Clear users before testing
+  before(function () {
+    return User.remove().then(function () {
+      user = new User({
+        name: 'Fake User',
+        email: 'test123@example.com',
+        password: 'test'
+      });
+      console.log(user)
+      return user.save()
+    }).then(function () {
+      user2 = new User({
+        name: 'Fake User',
+        email: 'user-2-test123@example.com',
+        password: 'test'
+      });
+      console.log(user2)
+      return user2.save()
+    })
   });
 
-  describe('GET /api/users', function() {
 
-    it('should verify admin role and route to user.controller.index', function() {
-      routerStub.get
-        .withArgs('/', 'authService.hasRole.admin', 'userCtrl.index')
-        .should.have.been.calledOnce;
+    // // Clear users after testing
+    after(function () {
+      return User.remove();
+    });
+
+    describe('GET /api/users/me', function () {
+      var token;
+
+      before(function (done) {
+        request(app)
+          .post('/auth/local')
+          .send({
+            email: 'test123@example.com',
+            password: 'test'
+          })
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end((err, res) => {
+            token = res.body.token;
+            done();
+          });
+      });
+
+      it('should respond with a user profile when authenticated', function (done) {
+        request(app)
+          .get('/api/users/me')
+          .set('authorization', 'Bearer ' + token)
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end((err, res) => {
+            res.body._id.toString().should.equal(user._id.toString());
+            done();
+          });
+      });
+
+      it('should respond with a 401 when not authenticated', function (done) {
+        request(app)
+          .get('/api/users/me')
+          .expect(401)
+          .end(done);
+      });
+
+
+    });
+
+  describe('GET /api/users/connect', function () {
+    var token;
+
+    before(function (done) {
+      request(app)
+        .post('/auth/local')
+        .send({
+          email: 'test123@example.com',
+          password: 'test'
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end((err, res) => {
+          token = res.body.token;
+          done();
+        });
+    });
+    it('should respond with a valid connection', function (done) {
+
+      request(app)
+        .get('/api/users/connect/' + user2._id.toString())
+        .set('authorization', 'Bearer ' + token)
+        .expect(204)
+        .end((err, res) => {
+          request(app)
+            .get('/api/users/me')
+            .set('authorization', 'Bearer ' + token)
+            .expect(200)
+            .expect('Content-Type', /json/)
+            .end((err, res) => {
+              res.body._id.toString().should.equal(user._id.toString());
+              res.body.connections[0].should.equal(user2._id.toString())
+              done();
+            });
+
+        });
+
+    });
+  });
+
+  describe('GET /api/users/', function () {
+    var token;
+
+    before(function (done) {
+      request(app)
+        .post('/auth/local')
+        .send({
+          email: 'test123@example.com',
+          password: 'test'
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end((err, res) => {
+          token = res.body.token;
+          done();
+        });
+    });
+    it('should respond with all users but no conections in user data', function (done) {
+
+      request(app)
+        .get('/api/users/')
+        .set('authorization', 'Bearer ' + token)
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end((err, res) => {
+          var hasConnections =_.has(res.body[0],'connections');
+          hasConnections.should.equal(false);
+          done();
+        });
+
     });
 
   });
 
-  describe('DELETE /api/users/:id', function() {
 
-    it('should verify admin role and route to user.controller.destroy', function() {
-      routerStub.delete
-        .withArgs('/:id', 'authService.hasRole.admin', 'userCtrl.destroy')
-        .should.have.been.calledOnce;
-    });
+  });//top level describe
 
-  });
-
-  describe('GET /api/users/me', function() {
-
-    it('should be authenticated and route to user.controller.me', function() {
-      routerStub.get
-        .withArgs('/me', 'authService.isAuthenticated', 'userCtrl.me')
-        .should.have.been.calledOnce;
-    });
-
-  });
-
-  describe('PUT /api/users/:id/password', function() {
-
-    it('should be authenticated and route to user.controller.changePassword', function() {
-      routerStub.put
-        .withArgs('/:id/password', 'authService.isAuthenticated', 'userCtrl.changePassword')
-        .should.have.been.calledOnce;
-    });
-
-  });
-
-  describe('GET /api/users/:id', function() {
-
-    it('should be authenticated and route to user.controller.show', function() {
-      routerStub.get
-        .withArgs('/:id', 'authService.isAuthenticated', 'userCtrl.show')
-        .should.have.been.calledOnce;
-    });
-
-  });
-
-  describe('POST /api/users', function() {
-
-    it('should route to user.controller.create', function() {
-      routerStub.post
-        .withArgs('/', 'userCtrl.create')
-        .should.have.been.calledOnce;
-    });
-
-  });
-
-});

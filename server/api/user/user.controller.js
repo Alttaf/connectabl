@@ -10,14 +10,14 @@ import _ from 'lodash';
 
 function validationError(res, statusCode) {
   statusCode = statusCode || 422;
-  return function(err) {
+  return function (err) {
     res.status(statusCode).json(err);
   }
 }
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
-  return function(err) {
+  return function (err) {
     res.status(statusCode).send(err);
   };
 }
@@ -28,32 +28,28 @@ function handleError(res, statusCode) {
  */
 export function index(req, res) {
   var omit = false;
-  if( !_.isEmpty(req.user.role) && req.user.role !='admin'){
-  omit = true;
+  if (!_.isEmpty(req.user.role) && req.user.role != 'admin') {
+    omit = true;
   }
-  var query ={}
+  var query = {}
 
-  console.log('params coming in to index:',req.query)
-  if(req.query.user_name && !_.isEmpty(req.query.user_name)){
+  //console.log('params coming in to index:', req.query)
+  if (req.query.user_name && !_.isEmpty(req.query.user_name)) {
     var input = req.query.user_name.toString();
     query = {"name": new RegExp(input, "i")}
   }
-  console.log('query',query)
   return User.find(query, '-salt -password').exec()
     .then(users => {
       var newUser = [];
-      console.log('omit',omit)
-      if(omit){
+      console.log('omit', omit)
+      if (omit) {
         _.forEach(users, function (val) {
-          console.log('val',val);
-          if(val.role != 'admin') {
+          if (val.role != 'admin') {
             newUser.push(_.omit(val.toObject(), ['connections']));
           }
-          console.log('val after ',val);
-          console.log('newUser',newUser);
         })
         res.status(200).json(newUser);
-      } else{
+      } else {
         res.status(200).json(users);
       }
 
@@ -69,11 +65,11 @@ export function create(req, res, next) {
   newUser.provider = 'local';
   newUser.role = 'user';
   newUser.save()
-    .then(function(user) {
-      var token = jwt.sign({ _id: user._id }, config.secrets.session, {
+    .then(function (user) {
+      var token = jwt.sign({_id: user._id}, config.secrets.session, {
         expiresIn: 60 * 60 * 5
       });
-      res.json({ token });
+      res.json({token});
     })
     .catch(validationError(res));
 }
@@ -83,7 +79,6 @@ export function create(req, res, next) {
  */
 export function show(req, res, next) {
   var userId = req.params.id;
-
   return User.findById(userId).exec()
     .then(user => {
       if (!user) {
@@ -99,31 +94,29 @@ export function show(req, res, next) {
  */
 export function showList(req, res, next) {
   var userIdsString = req.query.ids;
-  if(_.isEmpty(userIdsString)){
+  if (_.isEmpty(userIdsString)) {
     return res.status(404).end();
   }
   var userIds = userIdsString.split(',');
 
-  var mongooseObjectList  =[];
-  _.forEach(userIds, function(id){
-    let tempObj =  mongoose.Types.ObjectId(id);
-    console.log('ObjectId',tempObj);
+  var mongooseObjectList = [];
+  _.forEach(userIds, function (id) {
+    let tempObj = mongoose.Types.ObjectId(id);
     mongooseObjectList.push(tempObj);
   })
-  console.log('mongooseObjectList',mongooseObjectList);
-  return User.find({'_id': { $in:mongooseObjectList}}).exec()
-      .then(users => {
+  return User.find({'_id': {$in: mongooseObjectList}}).exec()
+    .then(users => {
       if (!users) {
-    return res.status(404).end();
-  }
-  // don't show users for simplicity
-  var newUsers =[];
-  _.forEach(users, function (val) {
-      newUsers.push(_.omit(val.toObject(), ['connections']));
-  })
-  res.json(newUsers);
-})
-.catch(err => next(err));
+        return res.status(404).end();
+      }
+      // don't show users for simplicity
+      var newUsers = [];
+      _.forEach(users, function (val) {
+        newUsers.push(_.omit(val.toObject(), ['connections']));
+      })
+      res.json(newUsers);
+    })
+    .catch(err => next(err));
 }
 
 /**
@@ -132,7 +125,7 @@ export function showList(req, res, next) {
  */
 export function destroy(req, res) {
   return User.findByIdAndRemove(req.params.id).exec()
-    .then(function() {
+    .then(function () {
       res.status(204).end();
     })
     .catch(handleError(res));
@@ -165,10 +158,8 @@ export function changePassword(req, res, next) {
  * Get my info
  */
 export function me(req, res, next) {
-  console.log("req",req.user);
   var userId = req.user._id;
-
-  return User.findOne({ _id: userId }, '-salt -password').exec()
+  return User.findOne({_id: userId}, '-salt -password').exec()
     .then(user => { // don't ever give out the password or salt
       if (!user) {
         return res.status(401).end();
@@ -185,35 +176,33 @@ export function connect(req, res, next) {
   console.log("req", req.params);
   var connectId = req.params.id;
   var userId = req.user._id;
-
   return User.findOne({_id: userId}, '-salt -password').exec()
-      .then(user => { // don't ever give out the password or salt
-      if (!user)
-      {
+    .then(user => { // don't ever give out the password or salt
+      if (!user) {
         return res.status(401).end();
       } else {
         return User.findOne({_id: connectId}).exec()
-        .then(user2 => { // don't ever give out the password or salt
-        if (!user2) {
-          return res.status(401).end();
-        } else {
-          return user2.update({$addToSet: {connections: userId}})
-              .then(function(){
-                console.log('user only',user)
-                return user.update({$addToSet: {connections: connectId}})
-              }).then(
-              function(){
-                res.status(204).end();
-              }
-            )
-          }
+          .then(user2 => { // don't ever give out the password or salt
+            if (!user2) {
+              return res.status(401).end();
+            } else {
+              return user2.update({$addToSet: {connections: userId}})
+                .then(function () {
+                  console.log('user only', user)
+                  return user.update({$addToSet: {connections: connectId}})
+                }).then(
+                  function () {
+                    res.status(204).end();
+                  }
+                )
+            }
 
-        });
+          });
       }
-})
-.catch(err => next(err)
-)
-  ;
+    })
+    .catch(err => next(err)
+    )
+    ;
 }
 
 /**
