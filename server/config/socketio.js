@@ -15,9 +15,7 @@ function onConnect(socket) {
   socket.on('info', data => {
     socket.log(JSON.stringify(data, null, 2));
   });
-
-  // Insert sockets below
-  require('../api/thing/thing.socket').register(socket);
+  
 
 }
 

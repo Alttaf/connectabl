@@ -33,9 +33,6 @@
             <div ng-if="!ser.isConnected(user._id, ser.currentUser.connections) && !ser.isAdmin()" class="col-xs-12 col-sm-12 col-md-12">
               <button type="submit" class="btn btn-primary" ng-click="ser.connect(user._id) && !ser.isAdmin()">Connect <i class="fa fa-link"></i></button>
             </div>
-            <div ng-if="!ser.isConnected(user._id, ser.currentUser.connections) && !ser.isAdmin()" class="col-xs-12 col-sm-12 col-md-12">
-              <button type="submit" class="btn btn-primary" ng-click="ser.mapReduceUsers()">test <i class="fa fa-link"></i></button>
-            </div>
             <div ng-if="ser.isConnected(user._id, ser.currentUser.connections) && !ser.isAdmin()" class="col-xs-12 col-sm-12 col-md-12">
               <button type="submit" class="btn btn-success">Connected</button>
             </div>
