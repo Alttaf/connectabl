@@ -2,3 +2,14 @@ ul
 {
   list-style-type: none;
 }
+
+.success {
+color:$brand-success;
+}
+.connected {
+  color:#D6D62B;
+}
+
+.info {
+  color:$gray-light;
+}
