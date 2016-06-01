@@ -25,8 +25,9 @@ https://nodejs.org/en/
 
 2. Run `bower install` to install front-end dependencies.
 
-3. Run `mongod` in a separate shell to keep an instance of the MongoDB Daemon running  ### THIS IS VERY IMPORTANT,
-Change the /server/config/local-env - /server/config/environment/development.js and test.js files to your mongo db url.
+3. Run `mongod` in a separate shell to keep an instance of the MongoDB Daemon running  
+4. ###  ###  ###  ###  ###  ###  ###  ###  ###  ###  ###  ### THIS IS VERY IMPORTANT,
+Change the /server/config/local-env - /server/config/environment/development.js and test.js files to your mongo db url ###  ###  ###  ###  ###  ###  ###  ###  ###  ###  ###  ###  ###  ###  ###  ### 
 
 4. Run `gulp serve` to start the development server. It should automatically open the client in your browser when ready.
 
@@ -37,3 +38,13 @@ Run `grunt build` for building and `grunt serve` for preview.
 ## Testing
 
 Running `npm test` will run the unit tests with karma.
+
+Currently on only the server and e2e tests are meaningful.  These can be run using the gulp test:server and gulp test:e2e commands.  This has only been tested on Mac using the chrome browser.  The server has been tested on centos 6.7.
+
+
+## TODO
+Karma test's would really like to test the logic in my directvie, beef up e2e and refactor some eneffiencies in the code.
+
+
+
+First You get functional, then you get resilient, then you get the performance
