@@ -86,7 +86,7 @@ export function show(req, res, next) {
       if (!user) {
         return res.status(404).end();
       }
-      res.cacheControl({noStore: true});
+   
       res.json(user.profile);
     })
     .catch(err => next(err));
@@ -117,7 +117,7 @@ export function showList(req, res, next) {
       _.forEach(users, function (val) {
         newUsers.push(_.omit(val.toObject(), ['connections']));
       })
-      res.cacheControl({noStore: true});
+   
       res.json(newUsers);
     })
     .catch(err => next(err));
@@ -168,7 +168,7 @@ export function me(req, res, next) {
       if (!user) {
         return res.status(401).end();
       }
-      res.cacheControl({noStore: true});
+   
       res.json(user);
     })
     .catch(err => next(err));
