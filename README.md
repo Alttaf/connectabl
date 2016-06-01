@@ -25,7 +25,7 @@ https://nodejs.org/en/
 
 2. Run `bower install` to install front-end dependencies.
 
-3. Run `mongod` in a separate shell to keep an instance of the MongoDB Daemon running  ###THIS IS VERY IMPORTANT,
+3. Run `mongod` in a separate shell to keep an instance of the MongoDB Daemon running  ### THIS IS VERY IMPORTANT,
 Change the /server/config/local-env - /server/config/environment/development.js and test.js files to your mongo db url.
 
 4. Run `gulp serve` to start the development server. It should automatically open the client in your browser when ready.
