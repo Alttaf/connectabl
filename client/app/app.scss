@@ -14,6 +14,11 @@ $fa-font-path: "../bower_components/font-awesome/fonts";
   padding: 0.2em 0;
 }
 
+.brand{
+  margin-top:3%;
+  margin-bottom:3%;
+}
+
 // Component styles are injected through grunt
 /* inject:scss */
 @import 'admin/admin';

@@ -3,10 +3,18 @@
 var config = browser.params;
 var UserModel = require(config.serverConfig.root + '/server/api/user/user.model').default;
 
-describe('Logout View', function() {
-  var login = function(user) {
+describe('Search for a user', function() {
+  var page;
+
+  var loadPage = function() {
     let promise = browser.get(config.baseUrl + '/login');
-    require('../login/login.po').login(user);
+    page = require('../../login.po');
+    return promise;
+  };
+
+  var searchPage = function() {
+    let promise = browser.get(config.baseUrl + '/');
+    page = require('./search.po');
     return promise;
   };
 
@@ -16,36 +24,51 @@ describe('Logout View', function() {
     password: 'test'
   };
 
-  beforeEach(function() {
+  var testUserA = {
+    name: 'Ay',
+    email: 'testa@example.com',
+    password: 'test'
+  };
+  var testUserB = {
+    name: 'Be',
+    email: 'testb@example.com',
+    password: 'test'
+  };
+
+  before(function() {
     return UserModel
       .remove()
       .then(function() {
         return UserModel.create(testUser);
       })
       .then(function() {
-        return login(testUser);
-      });
+        return UserModel.create(testUserA);
+      })
+      .then(function() {
+        return UserModel.create(testUserB);
+      })
+      .then(loadPage);
   });
 
   after(function() {
     return UserModel.remove();
-  })
+  });
+
 
   describe('with local auth', function() {
 
-    it('should logout a user and redirecting to "/"', function() {
+    it('should login a user and redirecting to "/"', function() {
+      page.login(testUser)
+        .then(function(){
+          console.log('promisified')
+        })
+
       var navbar = require('../../components/navbar/navbar.po');
 
       browser.getCurrentUrl().should.eventually.equal(config.baseUrl + '/');
       navbar.navbarAccountGreeting.getText().should.eventually.equal('Hello ' + testUser.name);
-
-      browser.get(config.baseUrl + '/logout');
-
-      navbar = require('../../components/navbar/navbar.po');
-
-      browser.getCurrentUrl().should.eventually.equal(config.baseUrl + '/login');
-      navbar.navbarAccountGreeting.isDisplayed().should.eventually.equal(false);
     });
+
 
   });
 });

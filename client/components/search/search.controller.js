@@ -107,7 +107,7 @@ class SearchController {
 
   // runs when user searches
   searchUsers() {
-    this._searchUsers(this.newThing, this.mapReduceUsers)
+    this._searchUsers(this.newUser, this.mapReduceUsers)
 
   }
 
