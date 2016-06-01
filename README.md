@@ -33,11 +33,13 @@ Change the /server/config/local-env - /server/config/environment/development.js 
 
 ## Build & development
 
-Run `grunt build` for building and `grunt serve` for preview.
+`grunt serve` to RUN.
 
 ## Testing
 
-Running `npm test` will run the unit tests with karma.
+Running `gulp test:server` will run the server side unit tests with mocha.
+
+Running `gulp test:e2e` will run the e2e tests with e2e.
 
 Currently on only the server and e2e tests are meaningful.  These can be run using the gulp test:server and gulp test:e2e commands.  This has only been tested on Mac using the chrome browser.  The server has been tested on centos 6.7.
 
