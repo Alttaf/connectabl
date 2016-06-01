@@ -70,18 +70,20 @@ describe('Search for a user', function() {
       navbar.navbarAccountGreeting.getText().should.eventually.equal('Hello ' + testUser.name);
 
 
+
     });
 
-      it('should login a user and redirecting to "/"', function() {
+      it('should find only the searched for user "/"', function() {
 
        serPage.search({name:'Be'})
-       element.all(by.css('.search-result')).then(function(items) {
-        items.length.should.eventually.equal(1);
-      });
-       // var seearchResult = element(by.css('.search-result'));
-       // seearchResult.length.should.eventually.equal(1);
-      
-      
+      //  element.all(by.css('.search-result')).then(function(items) {
+      //   items.length.should.eventually.equal(1);
+      // });
+  // browser.wait(changed, 5 * 1000, 'Server should start within 5 seconds');
+ browser.driver.sleep(10000);
+
+        var elements = element.all(protractor.By.css('article'));
+    elements.count().should.eventually.equal(1);
 
 
     });

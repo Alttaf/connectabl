@@ -8,7 +8,7 @@
 var SearchPage = function() {
   var form = this.form = element(by.css('.search-form'));
   form.name = form.element(by.model('ser.newUser'));
-  form.submit = form.element(by.css('.btn-primary'));
+  form.submit = form.element(by.id('search-button'));
 
   this.search = function(data) {
     for (var prop in data) {
@@ -17,8 +17,10 @@ var SearchPage = function() {
         formElem.sendKeys(data[prop]);
       }
     }
-
-    return form.submit.click();
+   // var input = $('#someInput');
+//form.submit..sendKeys(protractor.Key.ENTER);
+form.submit.click();
+    return form.submit.sendKeys(protractor.Key.ENTER);
   };
 };
 
