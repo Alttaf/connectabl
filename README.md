@@ -33,7 +33,7 @@ Change the /server/config/local-env - /server/config/environment/development.js 
 
 ## Build & development
 
-`grunt serve` to RUN.
+`gulp serve` to RUN.
 
 ## Testing
 
