@@ -5,16 +5,18 @@ var UserModel = require(config.serverConfig.root + '/server/api/user/user.model'
 
 describe('Search for a user', function() {
   var page;
+  var serPage;
 
   var loadPage = function() {
     let promise = browser.get(config.baseUrl + '/login');
-    page = require('../../login.po');
+    page = require('../../account/login/login.po');
     return promise;
   };
 
   var searchPage = function() {
     let promise = browser.get(config.baseUrl + '/');
-    page = require('./search.po');
+    browser.debugger();
+    serPage = require('./search.po');
     return promise;
   };
 
@@ -47,7 +49,8 @@ describe('Search for a user', function() {
       .then(function() {
         return UserModel.create(testUserB);
       })
-      .then(loadPage);
+      .then(loadPage)
+      .then(searchPage)
   });
 
   after(function() {
@@ -58,16 +61,34 @@ describe('Search for a user', function() {
   describe('with local auth', function() {
 
     it('should login a user and redirecting to "/"', function() {
-      page.login(testUser)
-        .then(function(){
-          console.log('promisified')
-        })
+
+       page.login(testUser);
 
       var navbar = require('../../components/navbar/navbar.po');
 
       browser.getCurrentUrl().should.eventually.equal(config.baseUrl + '/');
       navbar.navbarAccountGreeting.getText().should.eventually.equal('Hello ' + testUser.name);
+
+
     });
+
+      it('should login a user and redirecting to "/"', function() {
+
+       serPage.search({name:'Be'})
+       element.all(by.css('.search-result')).then(function(items) {
+        items.length.should.eventually.equal(1);
+      });
+       // var seearchResult = element(by.css('.search-result'));
+       // seearchResult.length.should.eventually.equal(1);
+      
+      
+
+
+    });
+
+
+
+
 
 
   });
