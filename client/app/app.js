@@ -5,7 +5,7 @@ angular.module('nodeApp', ['nodeApp.auth', 'nodeApp.admin', 'nodeApp.constants',
     'validation.match'
   ])
   .config(function($urlRouterProvider, $locationProvider) {
-    $urlRouterProvider.otherwise('/');
+    $urlRouterProvider.otherwise('/login');
 
     $locationProvider.html5Mode(true);
   });
